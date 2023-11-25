@@ -13,7 +13,7 @@ namespace DataAccess.Concrete
 {
     public class EfProductDal : EfEntityRepositoryBase<Product, ECommerceContext>, IProductDal
     {
-        public List<ProductDetailDTo> GetProductDetails()
+        public List<ProductDetailDto> GetProductDetails()
         {
             using (ECommerceContext context = new ECommerceContext())
             {
@@ -21,7 +21,7 @@ namespace DataAccess.Concrete
                              join c in context.Categories
                              on p.CategoryId equals c.CategoryId
 
-                             select new ProductDetailDTo
+                             select new ProductDetailDto
                              {
                                  ProductId = p.ProductId,
                                  ProductName = p.ProductName,
