@@ -16,7 +16,7 @@ namespace Business.Constans
         public static string CategoryDeleted = "Kategori Silindi";
         public static string CategoryUpdated = "Kategori Güncellendi";
         public static string CategoryNameInvalid = "Kategori İsmi Geçersiz";
-        public static string CarDetailsListed = "Kategori Detayları Listelendi";
+        public static string CategoryDetailsListed = "Kategori Detayları Listelendi";
         public static string CategoryLimitExceded = "Kategori limiti aşıldığı için yeni ürün eklenemiyor";
 
         //Order Messages
@@ -30,13 +30,13 @@ namespace Business.Constans
         public static string ProductNameInvalid = "Ürün ismi geçersiz";
         public static string ProductsListed = "Ürünler listelendi";
         public static string ProductNameAlreadyExists = "Bu isimde zaten başka bir ürün var";
+        public static string ProductCountOfCategoryError = "Bir kategoride en fazla 17 ürün olabilir";
 
         //User Messages
         public static string UserAdded = "Kullanıcı Eklendi";
         public static string UserDeleted = "Kullanıcı Silindi";
         public static string UserUpdated = "Kullanıcı Güncellendi";
         public static string UsersListed = "Kullanıcılar Listelendi";
-        public static string UserListed = "Kullanıcı Listelendi";
 
         //Process Messages
         public static string AuthorizationDenied = "Yetkiniz yok";

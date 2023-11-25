@@ -33,8 +33,6 @@ namespace Business.DependencyResolvers.Autofac
 
 
 
-
-
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
             builder.RegisterAssemblyTypes(assembly).AsImplementedInterfaces()
