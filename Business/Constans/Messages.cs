@@ -47,6 +47,12 @@ namespace Business.Constans
         public static string UserAlreadyExists = "Kullanıcı mevcut";
         public static string AccessTokenCreated = "Token oluşturuldu";
 
+        //ProductImage Messages
+        public static string ProductImageLimit = "Bir ürüne yedi fazla resim eklenemez";
+        public static string ProductImageDeleted = "Resim silindi";
+        public static string ProductImageUpdated = "Resim güncellendi";
+        public static string ProductImageAdded = "Resim eklendi";
+
 
 
 

@@ -1,4 +1,5 @@
 ﻿using Business.Abstract;
+using Business.Constans;
 using Core.Utilities.Business;
 using Core.Utilities.Helpers;
 using Core.Utilities.Results;
@@ -27,32 +28,50 @@ namespace Business.Concrete
 
         public IResult Add(IFormFile file, ProductImage productImage)
         {
-            IResult result = BusinessRules.Run
+            IResult result = BusinessRules.Run(CheckIfProductImageLimit(productImage.ProductId));
+            if(result != null)
+            {
+                return result;
+            }
+            productImage.ImagePath = _fileHelper.Upload(file, PathConstants.ImagePath);
+            productImage.Date = DateTime.Now;
+            _productImageDal.Add(productImage);
+            return new SuccessResult(Messages.ProductImageAdded);
         }
 
         public IResult Delete(ProductImage productImage)
         {
-            throw new NotImplementedException();
+            _fileHelper.Delete(PathConstants.ImagePath + productImage.ImagePath);
+            _productImageDal.Delete(productImage);
+            return new SuccessResult(Messages.ProductImageDeleted);
         }
 
         public IDataResult<List<ProductImage>> GetAll()
         {
-            throw new NotImplementedException();
+            return new SuccessDataResult<List<ProductImage>>(_productImageDal.GetAll()); 
         }
 
         public IDataResult<ProductImage> GetByImageId(int imageId)
         {
-            throw new NotImplementedException();
+            return new SuccessDataResult<ProductImage>(_productImageDal.Get(p=>p.ImageId == imageId));
         }
 
         public IDataResult<List<ProductImage>> GetByProductId(int productId)
         {
-            throw new NotImplementedException();
+            var result = BusinessRules.Run(CheckProductImageExists(productId));
+            if(result != null)
+            {
+                return new ErrorDataResult<List<ProductImage>>(GetDefaultImage(productId).Data); 
+            }
+            return new SuccessDataResult<List<ProductImage>>(_productImageDal.GetAll(p=>p.ProductId == productId));
         }
 
         public IResult Update(IFormFile file, ProductImage productImage)
         {
-            throw new NotImplementedException();
+            productImage.ImagePath=_fileHelper.Update(file, PathConstants.ImagePath + productImage.ImagePath, PathConstants.ImagePath);
+            productImage.Date = DateTime.Now;
+            _productImageDal.Update(productImage);
+            return new SuccessResult(Messages.ProductImageUpdated);
         }
 
 
@@ -83,6 +102,26 @@ namespace Business.Concrete
                 };
             }
             return _productImageDal.GetAll(p => p.ProductId == id);
+        }
+
+        private IResult CheckProductImageExists(int productId)
+        {
+            var result  = _productImageDal.GetAll(p=>p.ProductId==productId).Count;
+            if(result >0)
+            {
+                return new SuccessResult();
+            }
+            else
+            {
+                return new ErrorResult();
+            }
+        }
+
+        private IDataResult<List<ProductImage>> GetDefaultImage(int productId)
+        {
+            List<ProductImage> productImages = new List<ProductImage>();
+            productImages.Add(new ProductImage { Date = DateTime.Now, ProductId = productId, ImagePath="DefaultImage.jpg" });
+            return new SuccessDataResult<List<ProductImage>>(productImages);
         }
 
         
