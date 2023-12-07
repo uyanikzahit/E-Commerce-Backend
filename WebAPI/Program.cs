@@ -11,6 +11,7 @@ using Core.Utilities.Security.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using TokenOptions = Core.Utilities.Security.Jwt.TokenOptions;
 
 namespace WebAPI
 {
@@ -29,56 +30,66 @@ namespace WebAPI
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddControllers();
-
-            builder.Host.UseServiceProviderFactory(services => new AutofacServiceProviderFactory())
-                .ConfigureContainer<ContainerBuilder>(builder => { builder.RegisterModule(new AutofacBusinessModule()); });
-
-            var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<Core.Utilities.Security.Jwt.TokenOptions>();
-
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidIssuer = tokenOptions.Issuer,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
-                    };
-                });
-            builder.Services.AddDependencyResolvers (new ICoreModule[]
+            builder.Services.AddCors(options =>
             {
-                new CoreModule(),
+                options.AddPolicy("AllowOrigin", builder => builder.WithOrigins("http://localhost:4200"));
             });
 
 
 
+                builder.Host.UseServiceProviderFactory(services => new AutofacServiceProviderFactory())
+                    .ConfigureContainer<ContainerBuilder>(builder => { builder.RegisterModule(new AutofacBusinessModule()); });
 
-            var app = builder.Build();
+                var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<TokenOptions>();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = true,
+                            ValidateAudience = true,
+                            ValidateLifetime = true,
+                            ValidIssuer = tokenOptions.Issuer,
+                            ValidateIssuerSigningKey = true,
+                            IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
+                        };
+                    });
+                builder.Services.AddDependencyResolvers(new ICoreModule[]
+                {
+                new CoreModule(),
+                });
+
+
+
+
+                var app = builder.Build();
+
+                // Configure the HTTP request pipeline.
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
+
+                app.UseStaticFiles();
+
+                app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader());
+
+                app.UseHttpsRedirection();
+
+                //Kullanýcý giriþ anahtarý.
+                app.UseAuthentication();
+
+                //Kullanýcý yetki sorgulama.
+                app.UseAuthorization();
+
+                app.MapControllers();
+
+                app.Run();
             }
-
-            app.UseStaticFiles();
-
-            app.UseCors(builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader());
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthentication();
-
-            app.UseAuthorization();
-
-            app.MapControllers();
-
-            app.Run();
         }
+
     }
-}
+
 
